@@ -1,0 +1,20 @@
+pandas
+mlflow
+notebook
+numpy
+scikit-learn
+matplotlib
+seaborn
+python-box
+pyYAML
+tqdm
+ensure
+joblib
+types-PyYAML
+xgboost==2.1.4
+fastapi
+Flask-Cors
+imblearn
+dagshub
+dvc
+-e .

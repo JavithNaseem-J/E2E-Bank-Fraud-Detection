@@ -1,0 +1,22 @@
+XGBClassifier:
+  random_search:
+    n_estimators: [50, 100, 200, 500]
+    learning_rate: [0.01, 0.05, 0.1, 0.2]
+    max_depth: [3, 5, 7, 10]
+    min_child_weight: [1, 3, 5, 7]
+    gamma: [0, 0.1, 0.2, 0.3]
+    subsample: [0.7, 0.8, 0.9, 1.0]
+    colsample_bytree: [0.7, 0.8, 0.9, 1.0]
+    reg_alpha: [0, 0.1, 0.5, 1.0]
+    reg_lambda: [0, 0.1, 0.5, 1.0]
+    
+
+  cross_validation:  
+    cv_folds: 5
+    scoring: "accuracy"
+    n_jobs: -1
+    n_iter: 100
+
+train_test_split:
+  test_size: 0.2
+  random_state: 42

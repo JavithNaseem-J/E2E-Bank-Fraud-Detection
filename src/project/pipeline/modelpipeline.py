@@ -1,6 +1,11 @@
 from project import logger
 from project.config.config import ConfigurationManager
-from project.components.model import DataIngestion, DataValidation, DataTransformation, ModelTrainer, ModelEvaluation
+from project.components.data_ingestion import DataIngestion
+from project.components.data_validation import DataValidation
+from project.components.data_transformation import DataTransformation
+from project.components.model_training import ModelTrainer
+from project.components.model_evaluation import ModelEvaluation
+
 
 
 

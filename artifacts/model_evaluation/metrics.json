@@ -1,1 +1,1 @@
-{"test_accuracy": 0.9512572312274472, "test_precision_weighted": 0.9529908081177301, "test_recall_weighted": 0.9512572312274472, "test_f1_weighted": 0.951221488662338, "test_auc": 0.9863789494322283}
+{"test_accuracy": 0.9559489030188463, "test_precision_weighted": 0.9571245904834763, "test_recall_weighted": 0.9559489030188463, "test_f1_weighted": 0.9559195545299064, "test_auc": 0.9868930721936396}

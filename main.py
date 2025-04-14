@@ -1,6 +1,10 @@
 import os
 from project import logger
-from project.pipeline.modelpipeline import DataIngestionPipeline, DataValidationPipeline, DataTransformationPipeline, ModelTrainingPipeline, ModelEvaluationPipeline
+from project.pipeline.stage_01 import DataIngestionPipeline
+from project.pipeline.stage_02 import DataValidationPipeline,
+from project.pipeline.stage_03 import DataTransformationPipeline
+from project.pipeline.stage_04 import ModelTrainingPipeline
+from project.pipeline.stage_05 import ModelEvaluationPipeline
 
 STAGE_NAME = "Data Ingestion"
 

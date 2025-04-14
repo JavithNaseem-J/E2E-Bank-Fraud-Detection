@@ -1,34 +1,40 @@
 stages:
   data_ingestion:
-    cmd: python -m project.components.modelpipeline DataIngestionPipeline
+    cmd: python src/project/pipeline/stage_01.py DataIngestionPipeline
     deps:
-      - project/components/data_ingestion.py
-      - project/pipeline/modelpipeline.py
-      - project/config/config.py
-      - project/entity/config_entity.py
+      - src/project/components/data_ingestion.py
+      - src/project/pipeline/stage_01.py
+      - src/project/config/config.py
+      - src/project/entity/config_entity.py
+      - yaml file/config.yaml
     outs:
-      - artifacts/data_ingestion/creditcard.csv.zip
-      - artifacts/data_ingestion/unzipped_data/creditcard.csv
+      - artifacts/data_ingestion/data.zip
+      - artifacts/data_ingestion/Fraud-data.csv
 
   data_validation:
-    cmd: python -m project.components.modelpipeline DataValidationPipeline
+    cmd: python src/project/pipeline/stage_02.py DataValidationPipeline
     deps:
-      - project/components/data_validation.py
-      - project/pipeline/modelpipeline.py
-      - project/config/config.py
-      - project/entity/config_entity.py
-      - artifacts/data_ingestion/unzipped_data/creditcard.csv
+      - src/project/components/data_validation.py
+      - src/project/pipeline/stage_02.py
+      - src/project/config/config.py
+      - src/project/entity/config_entity.py
+      - yaml file/config.yaml
+      - yaml file/schema.yaml
+      - artifacts/data_ingestion/Fraud-data.csv
     outs:
       - artifacts/data_validation/status.txt
 
   data_transformation:
-    cmd: python -m src.project.components.modelpipeline DataTransformationPipeline
+    cmd: python src/project/pipeline/stage_03.py DataTransformationPipeline
     deps:
-      - project/components/data_transformation.py
-      - project/pipeline/modelpipeline.py
-      - project/config/config.py
-      - project/entity/config_entity.py
-      - artifacts/data_ingestion/unzipped_data/creditcard.csv
+      - src/project/components/data_transformation.py
+      - src/project/pipeline/stage_03.py
+      - src/project/config/config.py
+      - src/project/entity/config_entity.py
+      - yaml file/config.yaml
+      - yaml file/schema.yaml
+      - yaml file/params.yaml
+      - artifacts/data_ingestion/Fraud-data.csv
     outs:
       - artifacts/data_transformation/train.csv
       - artifacts/data_transformation/test.csv
@@ -38,24 +44,30 @@ stages:
       - artifacts/data_transformation/label_encoders.pkl
 
   model_training:
-    cmd: python -m project.components.modelpipeline ModelTrainingPipeline
+    cmd: python src/project/pipeline/stage_04.py ModelTrainingPipeline
     deps:
-      - project/components/model_training.py
-      - project/pipeline/modelpipeline.py
-      - project/config/config.py
-      - project/entity/config_entity.py
+      - src/project/components/model_training.py
+      - src/project/pipeline/stage_04.py
+      - src/project/config/config.py
+      - src/project/entity/config_entity.py
+      - yaml file/config.yaml
+      - yaml file/schema.yaml
+      - yaml file/params.yaml
       - artifacts/data_transformation/train_processed.npy
       - artifacts/data_transformation/test_processed.npy
     outs:
       - artifacts/model_trainer/model.joblib
 
   model_evaluation:
-    cmd: python -m project.components.modelpipeline ModelEvaluationPipeline
+    cmd: python src/project/pipeline/stage_05.py ModelEvaluationPipeline
     deps:
-      - project/components/model_evaluation.py
-      - project/pipeline/modelpipeline.py
-      - project/config/config.py
-      - project/entity/config_entity.py
+      - src/project/components/model_evaluation.py
+      - src/project/pipeline/stage_05.py
+      - src/project/config/config.py
+      - src/project/entity/config_entity.py
+      - yaml file/config.yaml
+      - yaml file/schema.yaml
+      - yaml file/params.yaml
       - artifacts/data_transformation/test.csv
       - artifacts/data_transformation/preprocessor.pkl
       - artifacts/model_trainer/model.joblib

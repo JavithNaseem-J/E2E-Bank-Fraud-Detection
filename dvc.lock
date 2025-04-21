@@ -1,0 +1,38 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/project/pipeline/stage_01.py
+    deps:
+    - path: src/project/components/data_ingestion.py
+      hash: md5
+      md5: 3eeb0493253b8a1623ab99ca481ada04
+      size: 989
+    - path: src/project/config/config.py
+      hash: md5
+      md5: 841677d22189e1ee658af932126beba4
+      size: 4036
+    - path: src/project/entity/config_entity.py
+      hash: md5
+      md5: 8c6b9b7debfbf9d79317da91c0737e2d
+      size: 1160
+    - path: src/project/pipeline/stage_01.py
+      hash: md5
+      md5: 786ff337e6430bb717761d18703f9402
+      size: 475
+    - path: src/project/utils/common.py
+      hash: md5
+      md5: f4639edc90798073c7b2111ecd0d018c
+      size: 2948
+    - path: yaml file/config.yaml
+      hash: md5
+      md5: 60796bbbc36723fd6bcd71066210339b
+      size: 1481
+    outs:
+    - path: artifacts/data_ingestion/Fraud-data.csv
+      hash: md5
+      md5: 6684ff6a45d05b191e074b8bcf84d9f5
+      size: 3692523
+    - path: artifacts/data_ingestion/data.zip
+      hash: md5
+      md5: a2a7b1694acacf952a81dc851cfb5494
+      size: 792923

@@ -3,7 +3,7 @@ import zipfile
 from urllib import request
 from pathlib import Path
 from project import logger
-from project.utils import get_size
+from project.utils.common import *
 from project.entity.config_entity import DataIngestionConfig
 
 

@@ -1,22 +1,22 @@
 stages:
   data_ingestion:
-    cmd: python src/project/pipeline/stage_01.py DataIngestionPipeline
+    cmd: python src/project/pipeline/stage_01.py
     deps:
-      - src/project/components/data_ingestion.py
       - src/project/pipeline/stage_01.py
       - src/project/config/config.py
       - src/project/entity/config_entity.py
+      - src/project/utils/common.py
       - yaml file/config.yaml
     outs:
       - artifacts/data_ingestion/data.zip
       - artifacts/data_ingestion/Fraud-data.csv
 
   data_validation:
-    cmd: python src/project/pipeline/stage_02.py DataValidationPipeline
+    cmd: python src/project/pipeline/stage_02.py
     deps:
-      - src/project/components/data_validation.py
       - src/project/pipeline/stage_02.py
       - src/project/config/config.py
+      - src/project/components/data_validation.py
       - src/project/entity/config_entity.py
       - yaml file/config.yaml
       - yaml file/schema.yaml
@@ -25,12 +25,13 @@ stages:
       - artifacts/data_validation/status.txt
 
   data_transformation:
-    cmd: python src/project/pipeline/stage_03.py DataTransformationPipeline
+    cmd: python src/project/pipeline/stage_03.py
     deps:
-      - src/project/components/data_transformation.py
       - src/project/pipeline/stage_03.py
       - src/project/config/config.py
+      - src/project/components/data_transformation.py
       - src/project/entity/config_entity.py
+      - src/project/utils/common.py
       - yaml file/config.yaml
       - yaml file/schema.yaml
       - yaml file/params.yaml
@@ -44,30 +45,32 @@ stages:
       - artifacts/data_transformation/label_encoders.pkl
 
   model_training:
-    cmd: python src/project/pipeline/stage_04.py ModelTrainingPipeline
+    cmd: python src/project/pipeline/stage_04.py
     deps:
-      - src/project/components/model_training.py
       - src/project/pipeline/stage_04.py
       - src/project/config/config.py
+      - src/project/components/model_training.py
       - src/project/entity/config_entity.py
+      - src/project/utils/common.py
       - yaml file/config.yaml
-      - yaml file/schema.yaml
       - yaml file/params.yaml
+      - yaml file/schema.yaml
       - artifacts/data_transformation/train_processed.npy
       - artifacts/data_transformation/test_processed.npy
     outs:
       - artifacts/model_trainer/model.joblib
 
   model_evaluation:
-    cmd: python src/project/pipeline/stage_05.py ModelEvaluationPipeline
+    cmd: python src/project/pipeline/stage_05.py
     deps:
-      - src/project/components/model_evaluation.py
       - src/project/pipeline/stage_05.py
       - src/project/config/config.py
+      - src/project/components/model_evaluation.py
       - src/project/entity/config_entity.py
+      - src/project/utils/common.py
       - yaml file/config.yaml
-      - yaml file/schema.yaml
       - yaml file/params.yaml
+      - yaml file/schema.yaml
       - artifacts/data_transformation/test.csv
       - artifacts/data_transformation/preprocessor.pkl
       - artifacts/model_trainer/model.joblib

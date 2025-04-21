@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from imblearn.over_sampling import SMOTETomek
+from imblearn.combine import SMOTETomek
 from imblearn.under_sampling import TomekLinks
 from project.entity.config_entity import DataTransformationConfig
 
@@ -19,11 +19,12 @@ class DataTransformation:
     def __init__(self, config: DataTransformationConfig):
         self.config = config
         self.columns_to_drop = config.columns_to_drop
-        self.target_column = config.target_column.lower()
+        self.target_column = config.target_column
         self.label_encoders = {}
-        
-        self.categorical_columns = [col.lower() for col in config.categorical_columns]
-        self.numerical_columns = [col.lower() for col in config.numerical_columns]
+        self.categorical_columns = config.categorical_columns
+        self.numerical_columns = config.numeric_columns
+        self.test_size = config.test_size
+        self.random_state = config.random_state
         
 
     def preprocess_data(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -32,16 +33,13 @@ class DataTransformation:
 
             data.drop(columns=self.columns_to_drop, inplace=True, errors='ignore')
             
-            data.columns = [col.lower() for col in data.columns]
-                        
-            
             for column in self.categorical_columns:
-                col_matches = [col for col in data.columns if col.lower() == column.lower()]
-                if col_matches:
-                    actual_col = col_matches[0]
+                if column in data.columns:
                     le = LabelEncoder()
-                    data[actual_col] = le.fit_transform(data[actual_col].astype(str))
-                    self.label_encoders[actual_col] = le
+                    data[column] = le.fit_transform(data[column].astype(str))
+                    self.label_encoders[column] = le            
+            
+            
             
             os.makedirs(os.path.dirname(self.config.label_encoder), exist_ok=True)
             joblib.dump(self.label_encoders, self.config.label_encoder)
@@ -72,7 +70,7 @@ class DataTransformation:
             resampled_data = X_resampled.copy()
             resampled_data[self.target_column] = y_resampled
             
-            train, test = train_test_split(resampled_data, test_size= self.config.test_size, random_state=self.config.random_state)
+            train, test = train_test_split(resampled_data, test_size= self.test_size, random_state=self.random_state)
             
             train_path = os.path.join(self.config.root_dir, "train.csv")
             test_path = os.path.join(self.config.root_dir, "test.csv")

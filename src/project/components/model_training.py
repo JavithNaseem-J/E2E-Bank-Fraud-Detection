@@ -2,6 +2,7 @@ import os
 import joblib   
 import numpy as np
 import mlflow
+import dagshub
 import mlflow.xgboost
 from xgboost import XGBClassifier
 from sklearn.model_selection import RandomizedSearchCV
@@ -11,12 +12,10 @@ from project.entity.config_entity import ModelTrainerConfig
 
 
 
-
-
 class ModelTrainer:
     def __init__(self, config: ModelTrainerConfig):
         self.config = config
-
+        dagshub.init(repo_owner="JavithNaseem-J", repo_name="E2E-Credit-Fraud-Detection")
         mlflow.set_tracking_uri("https://dagshub.com/JavithNaseem-J/E2E-Credit-Fraud-Detection.mlflow")
         mlflow.set_experiment("E2E-Credit-Fraud-Detection")
 
@@ -68,20 +67,18 @@ class ModelTrainer:
                 param_distributions=param_dist,
                 n_iter=self.config.n_iter,
                 cv=self.config.cv_folds,
-                scoring='accuracy',
+                scoring= self.config.scoring,
                 verbose=1,
                 n_jobs=self.config.n_jobs,
                 return_train_score=True
             )
             random_search.fit(train_x, train_y)
 
-            for i, (params, mean_score, std_score) in enumerate(
-                zip(
+            for i, (params, mean_score, std_score) in enumerate(zip(
                     random_search.cv_results_["params"],
                     random_search.cv_results_["mean_test_score"],
-                    random_search.cv_results_["std_test_score"]
-                )
-            ):
+                    random_search.cv_results_["std_test_score"])):
+                
                 with mlflow.start_run(nested=True, run_name=f"Trial_{i+1}"):
                     mlflow.set_tag("trial_number", i + 1)
                     mlflow.log_params(params)

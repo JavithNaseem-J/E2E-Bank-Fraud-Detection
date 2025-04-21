@@ -17,7 +17,6 @@ class ModelEvaluation:
         
 
     def evaluation(self):
-        # Validate file paths
         if not os.path.exists(self.config.test_path):
             raise FileNotFoundError(f"Test data file not found at {self.config.test_path}")
         if not os.path.exists(self.config.preprocess_path):
@@ -31,7 +30,6 @@ class ModelEvaluation:
         preprocessor = joblib.load(self.config.preprocess_path)
         model = joblib.load(self.config.model_path)
 
-        # Extract best estimator if model is RandomizedSearchCV
         if hasattr(model, 'best_estimator_'):
             logger.info("Model is a RandomizedSearchCV object, extracting best estimator...")
             best_params = model.best_params_
@@ -41,25 +39,21 @@ class ModelEvaluation:
             logger.info("Model is a direct estimator, using its parameters...")
 
 
-        # Load test and train data
         test_data = pd.read_csv(self.config.test_path)
-        target_column = self.config.target_column.lower()
+        target_column = self.config.target_column
 
         if target_column not in test_data.columns:
             raise ValueError(f"Target column '{target_column}' not found in test data.")
 
-        # Prepare test and train data
         test_x = test_data.drop(columns=[target_column])
         test_y = test_data[target_column]
 
         test_x_preprocessed = preprocessor.transform(test_x)
 
-        # Make predictions
         test_predictions = model.predict(test_x_preprocessed)
 
-        # Get predicted probabilities for ROC
         test_probabilities = model.predict_proba(test_x_preprocessed)[:, 1]
-        # Calculate metrics
+
         metrics = {
                 "test_accuracy": accuracy_score(test_y, test_predictions),
                 "test_precision_weighted": precision_score(test_y, test_predictions, average='weighted'),

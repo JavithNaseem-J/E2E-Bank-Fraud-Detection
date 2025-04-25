@@ -26,7 +26,7 @@ class DataTransformationConfig:
     preprocessor_path: Path
     label_encoder: Path
     categorical_columns: list
-    numerical_columns: list
+    numeric_columns: list
     columns_to_drop: list
     test_size: float
     random_state: int
@@ -39,7 +39,6 @@ class ModelTrainerConfig:
     test_preprocess: Path
     model_name: str
     target_column: str
-    random_search_params: dict
     n_iter: int     
     cv_folds: int
     scoring: str 

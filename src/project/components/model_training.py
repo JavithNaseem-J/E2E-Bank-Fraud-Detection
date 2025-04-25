@@ -5,9 +5,10 @@ import mlflow
 import dagshub
 import mlflow.xgboost
 from xgboost import XGBClassifier
-from sklearn.model_selection import RandomizedSearchCV
 from project import logger
 from project.entity.config_entity import ModelTrainerConfig
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+import optuna
 
 
 
@@ -20,8 +21,6 @@ class ModelTrainer:
         mlflow.set_experiment("E2E-Credit-Fraud-Detection")
 
     def train(self):
-        
-
         # Validate file paths
         if not os.path.exists(self.config.train_preprocess):
             logger.error(f"Train preprocessed file not found at: {self.config.train_preprocess}")
@@ -43,58 +42,81 @@ class ModelTrainer:
         test_x = test_data[:, :-1]
         test_y = test_data[:, -1]
 
-    
-        mlflow.xgboost.autolog()  
-        with mlflow.start_run(run_name="RandomizedSearchCV_Tuning"):
+        # Optuna Optimization
+        mlflow.xgboost.autolog()
+        with mlflow.start_run(run_name="Optuna_HPO") as parent_run:
+            parent_run_id = parent_run.info.run_id
             mlflow.set_tag("run_type", "hyperparameter_tuning")
             mlflow.set_tag("model", "XGBClassifier")
 
-            logger.info('Initializing Randomized Search')
+            def get_search_space(trial):
+                return {
+                    "n_estimators": trial.suggest_int("n_estimators", 50, 500),
+                    "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3),
+                    "max_depth": trial.suggest_int("max_depth", 3, 10),
+                    "min_child_weight": trial.suggest_int("min_child_weight", 1, 7),
+                    "gamma": trial.suggest_float("gamma", 0.0, 0.3),
+                    "subsample": trial.suggest_float("subsample", 0.7, 1.0),
+                    "colsample_bytree": trial.suggest_float("colsample_bytree", 0.7, 1.0),
+                    "reg_alpha": trial.suggest_float("reg_alpha", 0.0, 1.0),
+                    "reg_lambda": trial.suggest_float("reg_lambda", 0.0, 1.0),
+                }
 
-            xgb_model = XGBClassifier(
+            def objective(trial):
+                with mlflow.start_run(run_name=f"Trial_{trial.number}", nested=True):
+                    mlflow.set_tag("mlflow.parentRunId", parent_run_id)
+                    mlflow.set_tag("trial_number", trial.number)
+
+                    params = get_search_space(trial)
+
+                    model = XGBClassifier(
+                        objective='binary:logistic',
+                        verbosity=0,
+                        eval_metric='logloss',
+                        use_label_encoder=False,
+                        **params
+                    )
+
+                    cv = StratifiedKFold(n_splits=self.config.cv_folds, shuffle=True, random_state=42)
+                    cv_scores = cross_val_score(model, train_x, train_y, scoring=self.config.scoring, cv=cv, n_jobs=self.config.n_jobs)
+
+                    mean_score = cv_scores.mean()
+                    std_score = cv_scores.std()
+
+                    mlflow.log_params(params)
+                    mlflow.log_metric("cv_mean_accuracy", mean_score)
+                    mlflow.log_metric("cv_std_accuracy", std_score)
+
+                    logger.info(f"Trial {trial.number}: cv_mean_accuracy={mean_score:.4f} (+/- {std_score:.4f}), params={params}")
+
+                    return mean_score
+
+            logger.info('>>>>>>>>>> Starting Optuna Study <<<<<<<<<')
+
+            study = optuna.create_study(direction="maximize")
+            study.optimize(objective, n_trials=self.config.n_iter)
+
+            logger.info(f"Best trial found: {study.best_trial.params} with accuracy {study.best_trial.value:.4f}")
+
+            # Retrain best model on full training data
+            best_params = study.best_trial.params
+            best_model = XGBClassifier(
                 objective='binary:logistic',
                 verbosity=0,
-                eval_metric='logloss'
+                eval_metric='logloss',
+                use_label_encoder=False,
+                **best_params
             )
+            best_model.fit(train_x, train_y)
 
-            param_dist = self.config.random_search_params
-
-            logger.info('>>>>>>>>>> ......Performing Randomized Search - this may take some time...... <<<<<<<<<')
-
-
-            random_search = RandomizedSearchCV(
-                estimator=xgb_model,
-                param_distributions=param_dist,
-                n_iter=self.config.n_iter,
-                cv=self.config.cv_folds,
-                scoring= self.config.scoring,
-                verbose=1,
-                n_jobs=self.config.n_jobs,
-                return_train_score=True
-            )
-            random_search.fit(train_x, train_y)
-
-            for i, (params, mean_score, std_score) in enumerate(zip(
-                    random_search.cv_results_["params"],
-                    random_search.cv_results_["mean_test_score"],
-                    random_search.cv_results_["std_test_score"])):
-                
-                with mlflow.start_run(nested=True, run_name=f"Trial_{i+1}"):
-                    mlflow.set_tag("trial_number", i + 1)
-                    mlflow.log_params(params)
-                    mlflow.log_metric("mean_accuracy", mean_score)
-                    mlflow.log_metric("std_accuracy", std_score)  
-                    logger.info(f"Trial {i+1}: params={params}, mean_accuracy={mean_score:.4f}, std_accuracy={std_score:.4f}")
-
-
-            best_model = random_search.best_estimator_
             mlflow.xgboost.log_model(
                 xgb_model=best_model,
                 artifact_path="xgboost_model",
-                registered_model_name="XGBClassifier_CreditFraud"
+                registered_model_name="XGBClassifier_CreditFraud_Optuna"
             )
             logger.info("Best model logged to MLflow")
 
+            # Save the model locally
             model_path = os.path.join(self.config.root_dir, self.config.model_name)
-            joblib.dump(random_search, model_path)
-            logger.info(f'Model saved locally at {model_path}')
+            joblib.dump(best_model, model_path)
+            logger.info(f'Best model saved locally at {model_path}')

@@ -63,7 +63,7 @@ class ConfigurationManager:
         preprocessor_path=config.preprocessor_path,
         label_encoder=config.label_encoder,
         categorical_columns=schema.categorical_columns,
-        numerical_columns=schema.numeric_columns,  
+        numeric_columns=schema.numeric_columns,  
         columns_to_drop=schema.data_cleaning.columns_to_drop,
         test_size= params.test_size,
         random_state=params.random_state
@@ -77,7 +77,6 @@ class ConfigurationManager:
         config = self.config.model_trainer
         params = self.params.XGBClassifier
         schema = self.schema
-        random_search_params = params.random_search
         cv_params = params.cross_validation
 
         create_directories([config.root_dir])
@@ -88,7 +87,6 @@ class ConfigurationManager:
             test_preprocess=config.test_preprocess,
             model_name=config.model_name,
             target_column=schema.target_column.name,
-            random_search_params=random_search_params, 
             cv_folds=cv_params.cv_folds,            
             scoring=cv_params.scoring,             
             n_jobs=cv_params.n_jobs,

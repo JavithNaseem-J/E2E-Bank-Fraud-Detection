@@ -22,7 +22,7 @@ class DataTransformation:
         self.target_column = config.target_column
         self.label_encoders = {}
         self.categorical_columns = config.categorical_columns
-        self.numerical_columns = config.numeric_columns
+        self.numeric_columns = config.numeric_columns
         self.test_size = config.test_size
         self.random_state = config.random_state
         
@@ -89,7 +89,7 @@ class DataTransformation:
     
     def preprocess_features(self, train, test):
         try:
-            numerical_columns = self.numerical_columns
+            numerical_columns = self.numeric_columns
             categorical_columns = self.categorical_columns
 
             if self.target_column in categorical_columns:

@@ -5,8 +5,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 import pandas as pd
 import json
-
-# Import your prediction pipeline
+import uvicorn
 from project.pipeline.predictionpipeline import PredictionPipeline
 
 app = FastAPI()
@@ -41,7 +40,6 @@ async def predict(
     Number_of_Transactions_Last_24H: int = Form(...)
 ):
     try:
-        # Create input data dictionary
         data = {
             "Transaction_Type": Transaction_Type,
             "Device_Used": Device_Used,
@@ -54,7 +52,6 @@ async def predict(
             "Number_of_Transactions_Last_24H": Number_of_Transactions_Last_24H
         }
 
-        # Create DataFrame from the input data
         input_df = pd.DataFrame({
             'Transaction_Type': [Transaction_Type],
             'Device_Used': [Device_Used],
@@ -70,20 +67,17 @@ async def predict(
         print(f"Input DataFrame columns: {input_df.columns.tolist()}")
         print(f"Input DataFrame values: {input_df.iloc[0].tolist()}")
 
-        # Make prediction
         pipeline = PredictionPipeline()
         result = pipeline.predict(input_df)
         
-        # Based on your test.py output, result seems to be a dictionary with these keys
         fraud_status = result['fraud_status']
         fraud_probability = result['fraud_probability']
         
         print(f"Prediction result: {fraud_status}, Probability: {fraud_probability:.2f}")
 
-        # Encode data for URL parameters
         encoded_data = json.dumps(data)
         
-        # Return redirect instruction with prediction result
+
         return JSONResponse(content={
             "redirect": f"/results?fraud_status={fraud_status}&fraud_probability={fraud_probability}&data={encoded_data}"
         })
@@ -93,6 +87,7 @@ async def predict(
         print(f"Error in prediction endpoint: {str(e)}")
         print(traceback.format_exc())
         return JSONResponse(content={"error": f"Error during prediction: {str(e)}"}, status_code=500)
+    
 
 @app.get("/results")
 async def show_results(
@@ -102,23 +97,18 @@ async def show_results(
     data: str = None
 ):
     try:
-        # Check if we have all required parameters
         if fraud_status is None or fraud_probability is None or data is None:
             print("Missing required parameters for results page")
             return RedirectResponse(url="/")
 
-        # Debug information
         print(f"Received fraud_status: {fraud_status}")
         print(f"Received fraud_probability: {fraud_probability}")
         print(f"Received data: {data}")
         
-        # Parse the JSON data
         input_data = json.loads(data)
         
-        # Debug: Print parsed data
         print(f"Parsed input_data: {input_data}")
         
-        # Render the template with the data
         return templates.TemplateResponse("result.html", {
             "request": request,
             "fraud_status": fraud_status,
@@ -132,5 +122,4 @@ async def show_results(
         return RedirectResponse(url="/")
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8080)

@@ -2,23 +2,8 @@
 
 ![Project Banner](https://via.placeholder.com/1200x300.png?text=Credit+Fraud+Detection) <!-- Update with new banner image -->
 
-Welcome to the **End-to-End Credit Fraud Detection** project! This is a comprehensive machine learning project designed to detect fraudulent credit transactions using a modular pipeline, modern MLOps practices, and a user-friendly web application. Built as a final-year project, it showcases advanced skills in data science, machine learning, MLOps, and deployment, making it an ideal portfolio piece for roles in data science, ML engineering, and fintech.
+Welcome to the **End-to-End Credit Fraud Detection** project! This is a comprehensive machine learning project designed to detect fraudulent credit transactions using a modular pipeline, modern MLOps practices, and a user-friendly web application.it showcases advanced skills in data science, machine learning, MLOps, and deployment, making it an ideal portfolio piece for roles in data science, ML engineering, and fintech.
 
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Setup Instructions](#setup-instructions)
-- [Running the Pipeline](#running-the-pipeline)
-- [Using the Web App](#using-the-web-app)
-- [CI/CD and Deployment](#cicd-and-deployment)
-- [ML Experiments](#ml-experiments)
-- [Challenges and Solutions](#challenges-and-solutions)
-- [Future Improvements](#future-improvements)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
 
 ## Project Overview
 Credit fraud is a critical issue in the financial industry, leading to billions in losses annually. This project builds an end-to-end machine learning pipeline to detect fraudulent transactions using a dataset with features like `Transaction_Amount` and `Previous_Fraudulent_Transactions`. The pipeline includes data ingestion, validation, transformation, model training with hyperparameter optimization, evaluation, and deployment via a FastAPI web app. The project emphasizes production readiness with Docker containerization, CI/CD via GitHub Actions, and experiment tracking using MLflow and Dagshub.

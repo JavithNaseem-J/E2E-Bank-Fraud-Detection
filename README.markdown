@@ -1,8 +1,9 @@
 # End-to-End Credit Fraud Detection
 
-![Project Banner](https://via.placeholder.com/1200x300.png?text=Credit+Fraud+Detection) <!-- Update with new banner image -->
+![image](https://github.com/user-attachments/assets/8d0ebeac-1e3c-4d77-9c31-18b75fdd9783)
 
-Welcome to the **End-to-End Credit Fraud Detection** project! This is a comprehensive machine learning project designed to detect fraudulent credit transactions using a modular pipeline, modern MLOps practices, and a user-friendly web application.it showcases advanced skills in data science, machine learning, MLOps, and deployment, making it an ideal portfolio piece for roles in data science, ML engineering, and fintech.
+**End-to-End Credit Fraud Detection**
+This is a comprehensive machine learning project designed to detect fraudulent credit transactions using a modular pipeline, modern MLOps practices, and a user-friendly web application.it showcases advanced skills in data science, machine learning, MLOps, and deployment, making it an ideal portfolio piece for roles in data science, ML engineering, and fintech.
 
 
 ## Project Overview
